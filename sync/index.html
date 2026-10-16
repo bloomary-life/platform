@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>How draft sync works · Bloomary</title>
+    <link rel="icon" href="../favicon.svg?v=20260927-flower1" type="image/svg+xml">
+    <link rel="stylesheet" href="../styles.css?v=20260927-sync1">
+    <style>
+      .sync-page {
+        grid-column: 2;
+        grid-row: 2;
+        min-width: 0;
+        padding: 24px;
+        overflow: auto;
+      }
+      .sync-card {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 28px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+      .sync-card h1 {
+        margin: 0 0 8px;
+        font-size: 24px;
+      }
+      .sync-card > p {
+        color: var(--muted);
+        margin: 0 0 24px;
+      }
+      .sync-card h2 {
+        margin: 24px 0 8px;
+        font-size: 18px;
+      }
+      .sync-card p,
+      .sync-card li {
+        line-height: 1.6;
+        color: var(--ink);
+      }
+      .sync-card ul {
+        margin: 12px 0;
+        padding-left: 20px;
+      }
+      .sync-card li {
+        margin-bottom: 8px;
+      }
+      .sync-card strong {
+        color: var(--ink);
+      }
+      .sync-note {
+        margin-top: 24px;
+        padding: 14px;
+        background: rgba(96, 112, 255, 0.08);
+        border-radius: 8px;
+        font-size: 14px;
+      }
+      @media (max-width: 760px) {
+        .sync-page { grid-column: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="left-nav" aria-label="Sections">
+        <a class="brand nav-brand" href="/editor" aria-label="Open editor">
+          <img class="brand-mark" src="../app-logo.svg?v=20260927-flower1" alt="" aria-hidden="true">
+          <span>Bloomary</span>
+        </a>
+        <nav class="nav-list">
+          <a class="nav-item" href="/editor">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></span>
+            <span>Editor</span>
+          </a>
+          <a class="nav-item" href="/drafts">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6Z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg></span>
+            <span>Drafts</span>
+          </a>
+          <a class="nav-item" href="/insights">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/></svg></span>
+            <span>Insights</span>
+          </a>
+        </nav>
+        <p class="beta-note">Beta-testing for early birds. With love.</p>
+        <a class="nav-item is-active" href="/sync/">
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 7h-5V2"/><path d="M20 7a9 9 0 1 0 1 8"/></svg></span>
+          <span>Sync</span>
+        </a>
+        <a class="nav-item settings-item" href="/settings">
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg></span>
+          <span>Settings</span>
+        </a>
+      </aside>
+
+      <header class="topbar">
+        <div></div>
+      </header>
+
+      <main class="sync-page">
+        <section class="sync-card">
+          <h1>How draft sync works</h1>
+          <p>Your drafts are stored on your device first, then synced to Bloomary’s cloud so you can access them anywhere.</p>
+
+          <h2>1. Local first</h2>
+          <p>When you write or edit a draft, it is saved on your device immediately. You can keep writing even without an internet connection.</p>
+
+          <h2>2. Sync in the background</h2>
+          <p>When you’re online, Bloomary sends your changes to the cloud in the background. This includes:</p>
+          <ul>
+            <li>New drafts</li>
+            <li>Edits to existing drafts</li>
+            <li>Drafts you delete</li>
+          </ul>
+
+          <h2>3. Merge, not overwrite</h2>
+          <p>If you use Bloomary on multiple devices, drafts are merged by ID. The most recently updated version of each draft is kept. This means:</p>
+          <ul>
+            <li>Drafts you create on one device appear on all your devices.</li>
+            <li>Edits made on different devices are reconciled automatically.</li>
+            <li>Deleting a draft on one device removes it everywhere once sync completes.</li>
+          </ul>
+
+          <h2>4. Draft limits</h2>
+          <p>Your account has a draft limit based on your plan:</p>
+          <ul>
+            <li><strong>Free or expired Pro:</strong> up to 5 drafts</li>
+            <li><strong>Active Pro:</strong> up to 50 drafts</li>
+          </ul>
+          <p>The limit only applies to <strong>creating new drafts</strong>. You can always edit your existing drafts, even if you currently have more drafts than your plan allows.</p>
+
+          <h2>5. Images</h2>
+          <p>Images are uploaded separately and linked to the draft. They are included when the draft is synced across devices.</p>
+
+          <div class="sync-note">
+            <strong>Tip:</strong> If a draft ever looks out of date, make sure you are connected to the internet and give sync a few seconds to finish. Sync happens automatically in the background.
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

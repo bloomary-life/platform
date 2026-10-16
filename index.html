@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://cdn.paddle.com; object-src 'none'; base-uri 'self'">
+    <title>Bloomary</title>
+    <link rel="icon" href="favicon.svg?v=20260927-flower1" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css?v=20260929-mobile3">
+    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="left-nav" aria-label="Sections">
+        <a class="brand nav-brand" href="/editor" aria-label="Open editor">
+          <img class="brand-mark" src="app-logo.svg?v=20260927-flower1" alt="" aria-hidden="true">
+          <span>Bloomary</span>
+        </a>
+        <nav class="nav-list">
+          <a id="navEditor" class="nav-item is-active" href="/editor">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></span>
+            <span>Editor</span>
+          </a>
+          <a id="navDrafts" class="nav-item" href="/drafts">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6Z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg></span>
+            <span>Drafts</span>
+          </a>
+          <a id="navInsights" class="nav-item" href="/insights">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/></svg></span>
+            <span>Insights</span>
+          </a>
+        </nav>
+        <p class="beta-note">Beta-testing for early birds. With love.</p>
+        <a class="nav-item sync-item" href="sync/">
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 7h-5V2"/><path d="M20 7a9 9 0 1 0 1 8"/></svg></span>
+          <span>Sync</span>
+        </a>
+        <a id="navSettings" class="nav-item settings-item" href="/settings">
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg></span>
+          <span>Settings</span>
+        </a>
+      </aside>
+
+      <header class="topbar">
+        <a class="mobile-header-link mobile-brand" href="/editor" aria-label="Open editor">
+          <img class="brand-mark" src="app-logo.svg?v=20260927-flower1" alt="" aria-hidden="true">
+        </a>
+        <a class="mobile-header-link mobile-sync-link" href="sync/" aria-label="Sync drafts" title="Sync drafts">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-5V2"/><path d="M20 7a9 9 0 1 0 1 8"/></svg>
+        </a>
+        <section class="post-time-card" aria-label="Best time to post today">
+          <span>Best time</span>
+          <strong id="bestPostTime">--</strong>
+          <small id="bestPostDay"></small>
+          <small id="bestPostTomorrow" class="tomorrow-time"></small>
+        </section>
+        <nav class="top-actions" aria-label="Main actions">
+          <button id="saveDraft" class="button-with-icon" type="button" title="Save as new draft"><span class="button-icon" aria-hidden="true">+</span><span class="button-label">Save draft</span></button>
+          <details id="scheduleMenu" class="schedule-menu">
+            <summary class="button-with-icon"><span class="button-icon" aria-hidden="true">◷</span><span>Schedule</span></summary>
+            <div class="schedule-popover">
+              <label>Publish at<input id="scheduleAt" type="datetime-local" aria-label="Schedule date and time" title="Choose schedule date and time"></label>
+              <button id="schedulePost" class="primary-action" type="button">Confirm schedule</button>
+            </div>
+          </details>
+          <button id="publishLinkedIn" class="primary-action button-with-icon" type="button" title="Post to LinkedIn"><span class="button-icon" aria-hidden="true">↗</span><span class="button-label">Post to LinkedIn</span></button>
+          <input id="postAttachment" type="file" accept="image/jpeg,image/png" hidden>
+        </nav>
+        <div id="tierBanner" class="tier-banner" role="status" hidden>
+          <p><span id="tierBannerText"></span><small id="tierBannerNote" hidden></small></p>
+          <button id="tierBannerAction" type="button"></button>
+        </div>
+      </header>
+
+      <main id="editorView" class="workspace">
+        <section class="editor-pane" aria-label="Draft editor">
+          <div class="formatbar" aria-label="Formatting controls">
+            <select id="blockFormat" title="Text style" aria-label="Text style">
+              <option value="p">Text</option>
+              <option value="h2">Heading</option>
+            </select>
+            <button type="button" class="icon-button" data-command="bold" title="Bold"><strong>B</strong></button>
+            <button type="button" class="icon-button" data-command="italic" title="Italic"><em>I</em></button>
+            <button type="button" class="icon-button" data-command="underline" title="Underline"><span class="underline">U</span></button>
+            <button type="button" class="icon-button" data-command="strikeThrough" title="Strikethrough"><span class="strike">S</span></button>
+            <button type="button" class="icon-button" data-text-command="code" title="Code">&lt;&gt;</button>
+            <button type="button" class="icon-button" data-text-command="clear" title="Clear formatting">T/</button>
+            <button type="button" class="icon-button list-icon-button" data-text-command="bullets" title="Bullet list" aria-label="Bullet list"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="6" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="5" cy="18" r="1"/><path d="M9 6h10M9 12h10M9 18h10"/></svg></button>
+            <button type="button" class="icon-button list-icon-button" data-text-command="numbered" title="Numbered list" aria-label="Numbered list"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h1v3M4 11h2l-2 3h2M4 17h2l-2 3h2M10 6h10M10 12h10M10 18h10"/></svg></button>
+            <button type="button" id="addLink" class="icon-button" title="Link">Link</button>
+            <button id="attachPostFile" class="icon-button" type="button" title="Open image editor">▧</button>
+            <span id="attachmentName" class="attachment-name"></span>
+            <button id="removeAttachment" class="icon-button" type="button" title="Remove image" aria-label="Remove image" hidden>×</button>
+            <button type="button" id="naturalizeEnglish" class="icon-button ai-wand-button" title="Improve post with AI" aria-label="Improve post with AI"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 4 5 5L8.5 20.5a2.1 2.1 0 0 1-3-3Z"/><path d="m13 6 5 5M5 3v4M3 5h4M19 15v4M17 17h4"/></svg><span class="button-label sr-only">Improve post with AI</span></button>
+            <button type="button" id="openEmojiPicker" class="icon-button" title="Insert emoji">☺</button>
+            <button id="showPreview" class="icon-button preview-mobile-toggle" type="button" title="Show preview" aria-label="Show preview">◐</button>
+          </div>
+
+          <textarea
+            id="editor"
+            class="editor"
+            aria-multiline="true"
+            spellcheck="true"
+            placeholder="Write a LinkedIn post..."
+          ></textarea>
+        </section>
+
+        <aside class="preview-pane" aria-label="LinkedIn preview">
+          <div class="preview-toolbar">
+            <div class="segmented" aria-label="Preview device">
+              <button type="button" class="is-active" data-device="desktop" title="Desktop preview">Desktop</button>
+              <button type="button" data-device="mobile" title="Mobile preview">Mobile</button>
+            </div>
+            <div class="segmented" aria-label="Preview theme">
+              <button type="button" class="is-active" data-theme="light" title="Light preview">Light</button>
+              <button type="button" data-theme="dark" title="Dark preview">Dark</button>
+            </div>
+            <button type="button" id="copyText" class="button-with-icon" title="Copy text"><span class="button-icon" aria-hidden="true">⧉</span><span class="button-label">Copy</span></button>
+          </div>
+          <article id="previewCard" class="linkedin-card">
+            <div class="profile-row">
+              <div id="previewAvatar" class="avatar">in</div>
+              <div>
+                <div id="previewName" class="name-line">LinkedIn member</div>
+                <div id="previewHeadline" class="meta-line"></div>
+                <div class="meta-line">Now</div>
+              </div>
+            </div>
+            <div class="preview-copy">
+              <div id="previewBody" class="preview-body"></div>
+              <button id="moreToggle" class="more-toggle" type="button">…more</button>
+            </div>
+            <img id="previewImage" class="preview-image" alt="" hidden>
+            <div class="metrics-row">
+              <span>83</span>
+              <span>9</span>
+              <span>81</span>
+              <span>4</span>
+            </div>
+            <div class="engagement-row">
+              <button type="button">Like</button>
+              <button type="button">Comment</button>
+              <button type="button">Repost</button>
+              <button type="button">Send</button>
+            </div>
+          </article>
+        </aside>
+      </main>
+
+      <main id="draftsView" class="drafts-view" hidden>
+        <section class="drafts-card">
+          <div class="drafts-head">
+            <h1>Drafts <span id="draftCount" style="font-weight:normal;font-size:0.7em;opacity:0.5"></span></h1>
+            <button id="newDraft" class="primary-action" type="button">New draft</button>
+          </div>
+          <div class="draft-tools">
+            <input id="draftFilter" type="search" placeholder="Search drafts…" aria-label="Search drafts">
+            <div class="draft-tabs" role="tablist" aria-label="Draft type">
+              <button class="is-active" type="button" role="tab" aria-selected="true" data-draft-scope="all">Drafts</button>
+              <button type="button" role="tab" aria-selected="false" data-draft-scope="scheduled">Scheduled</button>
+            </div>
+          </div>
+          <div id="draftRows" class="draft-list"></div>
+          <div id="draftEmpty" class="draft-empty">No drafts yet</div>
+        </section>
+      </main>
+
+      <main id="insightsView" class="insights-view" hidden>
+        <section class="insights-hero">
+          <div>
+            <p class="insights-kicker">Public LinkedIn signals</p>
+            <h1>People turn their lived work into visible opportunity.</h1>
+            <p>
+              These examples are not promises. They show a repeatable pattern: reflection becomes positioning,
+              positioning becomes posts, and posts can become leads, clients, or career movement.
+            </p>
+          </div>
+          <button id="startFromInsight" class="primary-action" type="button">Write from your proof</button>
+        </section>
+
+        <section class="insight-grid" aria-label="LinkedIn revenue examples">
+          <article class="insight-card">
+            <div class="insight-topline">$2M revenue</div>
+            <h2>Christian Krause / Quota League</h2>
+            <p>Daily LinkedIn posting turned sales lessons and founder reflection into pipeline, revenue, and a coaching business.</p>
+            <a href="https://www.linkedin.com/posts/quotaleague_i-started-betting-on-linkedin-in-2020-here-activity-7340347428467843072-HkUf" target="_blank" rel="noopener">Open post</a>
+          </article>
+
+          <article class="insight-card">
+            <div class="insight-topline">$100K+ MRR pipeline</div>
+            <h2>Alyona Mysko</h2>
+            <p>Founder-led posts made LinkedIn a measurable revenue channel by turning product, customer, and company lessons into public trust.</p>
+            <a href="https://www.linkedin.com/posts/alyona-mysko_i-started-posting-on-linkedin-about-18-months-activity-7379153226815795200-BKla" target="_blank" rel="noopener">Open post</a>
+          </article>
+
+          <article class="insight-card">
+            <div class="insight-topline">2x in 60 days</div>
+            <h2>Lauren Tickner</h2>
+            <p>Rewriting content for buyers, not vague reach, became the lever for a coaching-client revenue jump.</p>
+            <a href="https://www.linkedin.com/posts/laurentickner_my-client-2x-his-revenue-in-60-days-by-being-activity-7479866952899956736-p1ay" target="_blank" rel="noopener">Open post</a>
+          </article>
+
+          <article class="insight-card">
+            <div class="insight-topline">3x client income</div>
+            <h2>Trisha Paul</h2>
+            <p>LinkedIn is framed as a sales machine when profile, posts, and offer clarity work together.</p>
+            <a href="https://www.linkedin.com/posts/trisha-paul-698989188_linkedingrowth-sales-hacks-activity-7343299040001851394-qmXW" target="_blank" rel="noopener">Open post</a>
+          </article>
+
+          <article class="insight-card">
+            <div class="insight-topline">7 inbound leads/week</div>
+            <h2>Rita Kerola</h2>
+            <p>Positioning and founder coaching turned personal expertise into inbound leads and income growth.</p>
+            <a href="https://www.linkedin.com/posts/ritakerola_in-2020-i-thought-linkedin-was-a-digital-activity-7465280725379039232-ziv3" target="_blank" rel="noopener">Open post</a>
+          </article>
+        </section>
+      </main>
+
+      <main id="settingsView" class="settings-view" hidden>
+        <section class="settings-card">
+          <header class="settings-heading">
+            <h1>Settings</h1>
+          </header>
+          <div class="settings-profile-section">
+            <div class="oauth-box settings-panel connection-panel">
+              <div class="oauth-copy">
+                <div id="linkedinProfileCard" class="linkedin-profile-card" hidden>
+                  <img id="linkedinProfilePicture" class="linkedin-profile-picture" alt="">
+                  <div class="linkedin-profile-copy">
+                    <div id="linkedinProfileName" class="linkedin-profile-name"></div>
+                    <div id="linkedinProfileEmail" class="linkedin-profile-email"></div>
+                    <div id="linkedinStatus" class="connection-status">LinkedIn · Connected</div>
+                    <div id="linkedinTokenExpiry" class="linkedin-token-expiry" hidden></div>
+                  </div>
+                </div>
+                <p id="linkedinDisconnectedStatus">Connect LinkedIn to publish and schedule posts.</p>
+              </div>
+              <div class="oauth-actions">
+                <button id="linkedinConnect" class="primary-action" type="button">Connect LinkedIn</button>
+                <button id="linkedinDisconnect" type="button">Disconnect</button>
+              </div>
+            </div>
+          </div>
+          <div class="settings-grid">
+            <div class="oauth-box settings-panel" id="syncSettingsBox" hidden>
+              <div class="oauth-copy">
+                <p class="settings-label">Data</p>
+                <h2>Sync drafts across devices</h2>
+                <p>Keep your drafts updated everywhere you use Bloomary.</p>
+              </div>
+              <div class="oauth-actions">
+                <label class="sync-switch-control">
+                  <span id="syncToggleStatus">On</span>
+                  <input id="syncEnabledToggle" type="checkbox" role="switch" aria-label="Sync drafts across devices">
+                  <span class="sync-switch" aria-hidden="true"></span>
+                </label>
+              </div>
+            </div>
+            <div class="oauth-box settings-panel">
+              <div class="oauth-copy">
+                <p class="settings-label">Preferences</p>
+                <h2>AI writing</h2>
+                <p id="geminiStatus">Stored in this browser only.</p>
+                <p>Write in any language. AI returns the post in the language you choose.</p>
+              </div>
+              <div class="oauth-actions">
+                <button id="manageGeminiAPIKey" type="button">Add API key</button>
+              </div>
+              <div class="oauth-actions">
+                <label for="postLanguage">Post language</label>
+                <select id="postLanguage" aria-label="Post language">
+                  <option value="English">English</option>
+                  <option value="German">German</option>
+                  <option value="Spanish">Spanish</option>
+                  <option value="French">French</option>
+                  <option value="Portuguese">Portuguese</option>
+                  <option value="Italian">Italian</option>
+                  <option value="Dutch">Dutch</option>
+                  <option value="Polish">Polish</option>
+                  <option value="Ukrainian">Ukrainian</option>
+                  <option value="Russian">Russian</option>
+                  <option value="Greek">Greek</option>
+                  <option value="Turkish">Turkish</option>
+                  <option value="Arabic">Arabic</option>
+                  <option value="Hindi">Hindi</option>
+                  <option value="same">Same as my draft</option>
+                </select>
+              </div>
+              <div id="geminiKeyControls" class="oauth-actions key-actions" hidden>
+                  <input id="geminiAPIKey" type="password" autocomplete="off" spellcheck="false" placeholder="Gemini API key" aria-label="Gemini API key">
+                  <button id="saveGeminiAPIKey" class="primary-action" type="button">Save key</button>
+                  <button id="clearGeminiAPIKey" type="button">Clear</button>
+              </div>
+            </div>
+            <div id="paddleBillingBox" class="oauth-box settings-panel" hidden>
+              <div class="oauth-copy">
+                <p class="settings-label">Your plan</p>
+                <h2 id="paddleBillingTitle">Bloomary Pro</h2>
+                <p id="paddleBillingStatus">Your 14-day free trial starts automatically when you join Bloomary.</p>
+                <div class="trial-progress" aria-hidden="true"><span id="trialProgress"></span></div>
+              </div>
+              <div class="oauth-actions">
+                <button id="paddleSubscribe" class="primary-action" type="button">Monthly</button>
+                <button id="paddleSubscribeYearly" type="button">Yearly</button>
+                <button id="paddleManage" type="button" hidden>Manage subscription</button>
+              </div>
+            </div>
+            <section class="settings-legal-card">
+              <h2>Your drafts</h2>
+              <p>Download every draft as Markdown files with their images.</p>
+              <button id="exportDrafts" type="button">Export all drafts</button>
+            </section>
+            <section class="settings-legal-card">
+              <h2>Privacy &amp; legal</h2>
+              <div class="legal-links">
+                <a href="https://bloomary.life/privacy/" target="_blank" rel="noopener">Privacy policy</a>
+                <a href="https://bloomary.life/terms/" target="_blank" rel="noopener">Terms</a>
+                <a href="https://bloomary.life/cookie-policy/" target="_blank" rel="noopener">Cookie policy</a>
+                <a href="https://bloomary.life/legal-notice/" target="_blank" rel="noopener">Legal notice</a>
+                <a href="https://bloomary.life/refund-policy/" target="_blank" rel="noopener">Refund policy</a>
+              </div>
+            </section>
+          </div>
+          <details id="dangerZone" class="danger-zone" hidden>
+            <summary>Danger zone</summary>
+            <div class="danger-zone-content">
+              <div class="oauth-copy">
+                <h2>Delete account data</h2>
+                <p id="accountDeletionStatus">Connect LinkedIn to delete connected Bloomary account data.</p>
+              </div>
+              <div class="oauth-actions">
+                <button id="deleteAccount" class="danger-action" type="button">Delete all my data</button>
+              </div>
+            </div>
+          </details>
+        </section>
+      </main>
+    </div>
+
+    <button id="feedbackButton" class="bug-report-button" type="button">Send feedback</button>
+    <form id="feedbackForm" class="feedback-form" hidden>
+      <textarea id="feedbackMessage" rows="6" placeholder="Write your message..." aria-label="Feedback message"></textarea>
+      <div class="feedback-actions">
+        <button id="feedbackCancel" type="button">Cancel</button>
+        <button class="primary-action" type="submit">Send feedback</button>
+      </div>
+    </form>
+
+    <dialog id="draftScheduleDialog" class="draft-schedule-dialog">
+      <div class="draft-schedule-dialog-head">
+        <h2>Schedule draft</h2>
+        <button id="draftScheduleClose" type="button" aria-label="Close scheduling dialog">×</button>
+      </div>
+      <p id="draftScheduleTitle"></p>
+      <label>Publish at<input id="draftScheduleAt" type="datetime-local" aria-label="Schedule date and time"></label>
+      <div class="draft-schedule-dialog-actions">
+        <button id="draftScheduleCancel" type="button">Cancel</button>
+        <button id="draftScheduleConfirm" class="primary-action" type="button">Schedule</button>
+      </div>
+    </dialog>
+
+    <dialog id="planSheet" class="draft-schedule-dialog plan-sheet">
+      <div class="draft-schedule-dialog-head">
+        <h2 id="planSheetTitle">Choose a plan</h2>
+        <button id="planSheetClose" type="button" aria-label="Close plans">×</button>
+      </div>
+      <div id="planSheetBody"></div>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <div id="emojiModal" class="emoji-modal" hidden>
+      <section class="emoji-picker-panel" role="dialog" aria-modal="true" aria-label="Emoji">
+        <div class="emoji-picker-topbar">
+          <strong>Emoji</strong>
+          <button id="emojiPickerClose" type="button" aria-label="Close emoji picker">Close</button>
+        </div>
+        <div id="emojiPickerGrid" class="emoji-picker-grid"></div>
+      </section>
+    </div>
+
+    <div id="imageEditorModal" class="image-editor-modal" hidden>
+      <section class="image-editor-panel" role="dialog" aria-modal="true" aria-label="Image editor">
+        <div class="image-editor-topbar">
+          <button id="imageEditorCancel" type="button">Cancel</button>
+          <button id="imageEditorClear" type="button">Clear</button>
+        </div>
+        <div class="image-editor-body">
+          <label id="imageEditorDrop" class="image-editor-drop">
+            <input id="imageEditorFile" type="file" accept="image/*" hidden>
+            <span>Choose or drop image</span>
+          </label>
+          <div id="imageEditorStage" class="image-editor-stage" hidden>
+            <canvas id="imageEditorCanvas" width="1080" height="1350"></canvas>
+            <textarea id="imageEditorText" rows="2" placeholder="Caption" aria-label="Caption"></textarea>
+          </div>
+        </div>
+        <div class="image-editor-controls">
+          <button id="imageEditorStyle" type="button" aria-label="Toggle text background">A</button>
+          <button id="imageEditorAlign" type="button" aria-label="Toggle text alignment">Center</button>
+          <button id="imageEditorDone" class="primary-action" type="button">Done</button>
+        </div>
+      </section>
+    </div>
+
+    <script src="config.js?v=20261008-bugs1"></script>
+    <script src="app.js?v=20261011-subscription-gates"></script>
+  </body>
+</html>
