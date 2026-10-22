@@ -1017,6 +1017,7 @@
 
   function newEditorState() {
     activeDraftId = null;
+    syncEditorURL();
     clearPostAttachment();
     keepRemoteImage = false;
     editor.value = "";
@@ -1272,6 +1273,7 @@
       return true;
     }
     activeDraftId = crypto.randomUUID();
+    syncEditorURL();
     drafts.unshift({
       id: activeDraftId,
       title: titleFromBody(body),
@@ -1577,6 +1579,26 @@
       if (schedule) {
         scheduleMeta.textContent = ` · Scheduled ${new Date(schedule.scheduledAt).toLocaleString()}`;
       }
+      if (["pending", "retry", "needs_review"].includes(schedule?.status)) {
+        const unscheduleButton = document.createElement("button");
+        unscheduleButton.type = "button";
+        unscheduleButton.className = "draft-icon-action";
+        unscheduleButton.title = "Unschedule";
+        unscheduleButton.setAttribute("aria-label", "Unschedule draft");
+        unscheduleButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M9.5 13.5l5 5M14.5 13.5l-5 5"/></svg>';
+        unscheduleButton.addEventListener("click", async (event) => {
+          event.stopPropagation();
+          unscheduleButton.disabled = true;
+          try {
+            await unscheduleDraft(draft.id);
+            showToast("Unscheduled.");
+          } catch (error) {
+            showToast(error.message);
+            unscheduleButton.disabled = false;
+          }
+        });
+        scheduleButton.after(unscheduleButton);
+      }
       row.append(actions);
       draftRows.append(row);
     });
@@ -1666,6 +1688,38 @@
     await refreshScheduledPosts();
   }
 
+  async function unscheduleDraft(draftId) {
+    const credential = linkedInCredential();
+    if (!credential) throw new Error("Connect LinkedIn first.");
+    const url = new URL(`${API_BASE_URL}/api/linkedin/schedule`);
+    url.searchParams.set("memberId", credential.memberId);
+    url.searchParams.set("draftId", draftId);
+    const response = await fetch(url, { method: "DELETE", headers: { Authorization: `Bearer ${credential.accessToken}` } });
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}));
+      throw new Error(result.errorDescription || "Schedule could not be cancelled.");
+    }
+    await refreshScheduledPosts();
+  }
+
+  // The editor URL names the open draft (/editor?draft=<id>) so a draft can be linked by ID.
+  function editorPath() {
+    return activeDraftId ? `${VIEW_PATHS.editor}?draft=${encodeURIComponent(activeDraftId)}` : VIEW_PATHS.editor;
+  }
+
+  function syncEditorURL() {
+    if (editorView.hidden) return;
+    const path = editorPath();
+    if (window.location.pathname + window.location.search !== path) window.history.replaceState({ view: "editor" }, "", path);
+  }
+
+  async function openDraftFromURL() {
+    const id = new URLSearchParams(window.location.search).get("draft")?.toLowerCase();
+    if (!id || activeDraftId?.toLowerCase() === id) return;
+    const draft = readStore(DRAFTS_KEY).find((item) => item.id.toLowerCase() === id);
+    if (draft && confirmDiscardEditor()) await openDraft(draft);
+  }
+
   function viewFromPath() {
     return Object.entries(VIEW_PATHS).find(([, path]) => path === window.location.pathname)?.[0] || "editor";
   }
@@ -1694,8 +1748,9 @@
     }
     if (name === "settings") renderAISettings();
     if (name === "settings") renderSyncSettings();
-    if (updateHistory && window.location.pathname !== VIEW_PATHS[name]) {
-      window.history[replaceHistory ? "replaceState" : "pushState"]({ view: name }, "", VIEW_PATHS[name]);
+    const path = name === "editor" ? editorPath() : VIEW_PATHS[name];
+    if (updateHistory && window.location.pathname + window.location.search !== path) {
+      window.history[replaceHistory ? "replaceState" : "pushState"]({ view: name }, "", path);
     }
   }
 
@@ -1850,6 +1905,7 @@
     form.set("memberId", memberId);
     form.set("commentary", body);
     if (file) form.set("attachment", file);
+    if (activeDraftId) form.set("draftId", activeDraftId);
     publishLinkedIn.disabled = true;
     setButtonLabel(publishLinkedIn, "Posting...");
     try {
@@ -1861,6 +1917,7 @@
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.errorDescription || "LinkedIn post failed");
       showToast("Posted.");
+      refreshScheduledPosts().catch(() => {});
     } catch (error) {
       showToast(error.message);
     } finally {
@@ -2325,7 +2382,10 @@
     event.preventDefault();
     showView("settings");
   });
-  window.addEventListener("popstate", () => showView(viewFromPath(), { updateHistory: false }));
+  window.addEventListener("popstate", () => {
+    showView(viewFromPath(), { updateHistory: false });
+    openDraftFromURL();
+  });
   startFromInsight.addEventListener("click", () => {
     if (!confirmDiscardEditor()) return;
     activeDraftId = null;
@@ -2498,10 +2558,12 @@
   refreshLinkedInProfile();
   initializePaddle();
   renderPaddleBilling();
-  loadRemoteDrafts();
+  const initialRemoteDrafts = loadRemoteDrafts();
   renderAISettings();
   renderSyncSettings();
-  showView(viewFromPath(), { replaceHistory: true });
+  const deepLinkedDraft = viewFromPath() === "editor" && new URLSearchParams(window.location.search).has("draft");
+  showView(viewFromPath(), deepLinkedDraft ? { updateHistory: false } : { replaceHistory: true });
+  if (deepLinkedDraft) openDraftFromURL().then(() => initialRemoteDrafts).finally(openDraftFromURL);
 
   window.addEventListener("beforeunload", (event) => {
     if (!isEditorDirty()) return;

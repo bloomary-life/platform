@@ -20,6 +20,7 @@ function setup(entitlement = expired, reachable = true) {
     refreshEntitlement: async () => reachable,
     showView: (view) => events.push(view), showToast: (message) => events.push(message), showTierNotice: (message) => events.push(message),
     renderPaddleBilling() {},
+    syncEditorURL() {},
     paddleBillingBox: { hidden: false },
     planSheet: { open: false, showModal() { this.open = true; events.push("plan-sheet"); } },
     planSheetBody: { append() {} }, planSheetTitle: { textContent: "" },
